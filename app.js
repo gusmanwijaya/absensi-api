@@ -10,6 +10,7 @@ const jurusanRouter = require("./app/api/v1/routers/jurusan");
 const mataPelajaranRouter = require("./app/api/v1/routers/mata-pelajaran");
 const guruRouter = require("./app/api/v1/routers/guru");
 const siswaRouter = require("./app/api/v1/routers/siswa");
+const orangTuaRouter = require("./app/api/v1/routers/orang-tua");
 
 const notFoundMiddleware = require("./app/middleware/not-found");
 const handleErrorMiddleware = require("./app/middleware/handle-error");
@@ -32,6 +33,7 @@ app.use(`/${API_VERSION}/jurusan`, jurusanRouter);
 app.use(`/${API_VERSION}/mata-pelajaran`, mataPelajaranRouter);
 app.use(`/${API_VERSION}/guru`, guruRouter);
 app.use(`/${API_VERSION}/siswa`, siswaRouter);
+app.use(`/${API_VERSION}/orang-tua`, orangTuaRouter);
 
 app.use(notFoundMiddleware);
 app.use(handleErrorMiddleware);
