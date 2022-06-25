@@ -112,8 +112,6 @@ module.exports = {
           `Username : ${username} sudah terdaftar`
         );
 
-      const splitMataPelajaran = mataPelajaran.split(",");
-
       const data = new Guru({
         nip,
         nama,
@@ -121,7 +119,7 @@ module.exports = {
         agama,
         alamat,
         noHp,
-        mataPelajaran: splitMataPelajaran,
+        mataPelajaran: JSON.parse(mataPelajaran),
         username,
         password,
       });
@@ -178,15 +176,13 @@ module.exports = {
           `Guru dengan id ${guruId} tidak ditemukan`
         );
 
-      const splitMataPelajaran = mataPelajaran.split(",");
-
       data.nip = nip;
       data.nama = nama;
       data.jenisKelamin = jenisKelamin;
       data.agama = agama;
       data.alamat = alamat;
       data.noHp = noHp;
-      data.mataPelajaran = splitMataPelajaran;
+      data.mataPelajaran = JSON.parse(mataPelajaran);
       data.username = username;
       await data.save();
 
