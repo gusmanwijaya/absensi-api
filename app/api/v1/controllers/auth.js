@@ -1,8 +1,16 @@
 const Admin = require("../models/admin");
+const Guru = require("../models/guru");
+const Siswa = require("../models/siswa");
+const OrangTua = require("../models/orang-tua");
 const { StatusCodes } = require("http-status-codes");
 const CustomError = require("../../../../app/error");
 const bcrypt = require("bcryptjs");
-const { createPayloadAdmin } = require("../../../utils/createPayloadJwt");
+const {
+  createPayloadAdmin,
+  createPayloadGuru,
+  createPayloadSiswa,
+  createPayloadOrangTua,
+} = require("../../../utils/createPayloadJwt");
 const createJwt = require("../../../utils/createJwt");
 
 module.exports = {
@@ -58,6 +66,93 @@ module.exports = {
       res.status(StatusCodes.OK).json({
         statusCode: StatusCodes.OK,
         message: "Login admin berhasil!",
+        data: {
+          token,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  loginGuru: async (req, res, next) => {
+    try {
+      const { username, password } = req.body;
+
+      if (!username || !password)
+        throw new CustomError.BadRequest(
+          "Username atau password tidak boleh kosong!"
+        );
+
+      const data = await Guru.findOne({ username });
+      if (!data) throw new CustomError.Unauthorized("User tidak ditemukan!");
+
+      const isMatch = await bcrypt.compare(password, data?.password);
+      if (!isMatch) throw new CustomError.Unauthorized("Password salah!");
+
+      const payload = createPayloadGuru(data);
+      const token = createJwt(payload);
+
+      res.status(StatusCodes.OK).json({
+        statusCode: StatusCodes.OK,
+        message: "Login guru berhasil!",
+        data: {
+          token,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  loginSiswa: async (req, res, next) => {
+    try {
+      const { username, password } = req.body;
+
+      if (!username || !password)
+        throw new CustomError.BadRequest(
+          "Username atau password tidak boleh kosong!"
+        );
+
+      const data = await Siswa.findOne({ username });
+      if (!data) throw new CustomError.Unauthorized("User tidak ditemukan!");
+
+      const isMatch = await bcrypt.compare(password, data?.password);
+      if (!isMatch) throw new CustomError.Unauthorized("Password salah!");
+
+      const payload = createPayloadSiswa(data);
+      const token = createJwt(payload);
+
+      res.status(StatusCodes.OK).json({
+        statusCode: StatusCodes.OK,
+        message: "Login siswa berhasil!",
+        data: {
+          token,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  loginOrangTua: async (req, res, next) => {
+    try {
+      const { username, password } = req.body;
+
+      if (!username || !password)
+        throw new CustomError.BadRequest(
+          "Username atau password tidak boleh kosong!"
+        );
+
+      const data = await OrangTua.findOne({ username });
+      if (!data) throw new CustomError.Unauthorized("User tidak ditemukan!");
+
+      const isMatch = await bcrypt.compare(password, data?.password);
+      if (!isMatch) throw new CustomError.Unauthorized("Password salah!");
+
+      const payload = createPayloadOrangTua(data);
+      const token = createJwt(payload);
+
+      res.status(StatusCodes.OK).json({
+        statusCode: StatusCodes.OK,
+        message: "Login orang tua berhasil!",
         data: {
           token,
         },

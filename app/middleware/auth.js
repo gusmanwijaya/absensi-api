@@ -30,6 +30,110 @@ const authenticationAdmin = async (req, res, next) => {
   }
 };
 
+const authenticationGuru = async (req, res, next) => {
+  try {
+    let token;
+
+    const authHeader = req.headers.authorization;
+
+    if (authHeader && authHeader.startsWith("Bearer")) {
+      token = authHeader.split(" ")[1];
+    }
+
+    if (!token) {
+      throw new CustomError.Forbidden("Silahkan login terlebih dahulu");
+    }
+
+    const payload = verifyJwt(token);
+
+    req.user = {
+      _id: payload._id,
+      nip: payload.nip,
+      nama: payload.nama,
+      jenisKelamin: payload.jenisKelamin,
+      agama: payload.agama,
+      alamat: payload.alamat,
+      noHp: payload.noHp,
+      mataPelajaran: payload.mataPelajaran,
+      username: payload.username,
+      role: payload.role,
+    };
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+const authenticationSiswa = async (req, res, next) => {
+  try {
+    let token;
+
+    const authHeader = req.headers.authorization;
+
+    if (authHeader && authHeader.startsWith("Bearer")) {
+      token = authHeader.split(" ")[1];
+    }
+
+    if (!token) {
+      throw new CustomError.Forbidden("Silahkan login terlebih dahulu");
+    }
+
+    const payload = verifyJwt(token);
+
+    req.user = {
+      _id: payload._id,
+      nisn: payload.nisn,
+      nama: payload.nama,
+      jenisKelamin: payload.jenisKelamin,
+      agama: payload.agama,
+      alamat: payload.alamat,
+      noHp: payload.noHp,
+      kelas: payload.kelas,
+      jurusan: payload.jurusan,
+      mataPelajaran: payload.mataPelajaran,
+      username: payload.username,
+      role: payload.role,
+    };
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+const authenticationOrangTua = async (req, res, next) => {
+  try {
+    let token;
+
+    const authHeader = req.headers.authorization;
+
+    if (authHeader && authHeader.startsWith("Bearer")) {
+      token = authHeader.split(" ")[1];
+    }
+
+    if (!token) {
+      throw new CustomError.Forbidden("Silahkan login terlebih dahulu");
+    }
+
+    const payload = verifyJwt(token);
+
+    req.user = {
+      _id: payload._id,
+      nama: payload.nama,
+      alamat: payload.alamat,
+      noHp: payload.noHp,
+      siswa: payload.siswa,
+      username: payload.username,
+      role: payload.role,
+    };
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
 const authorizeRoles = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
@@ -41,4 +145,10 @@ const authorizeRoles = (...roles) => {
   };
 };
 
-module.exports = { authenticationAdmin, authorizeRoles };
+module.exports = {
+  authenticationAdmin,
+  authenticationGuru,
+  authenticationSiswa,
+  authenticationOrangTua,
+  authorizeRoles,
+};
