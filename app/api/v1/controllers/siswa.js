@@ -1,4 +1,4 @@
-const Guru = require("../models/guru");
+const Siswa = require("../models/siswa");
 const { StatusCodes } = require("http-status-codes");
 const CustomError = require("../../../error");
 
@@ -7,12 +7,22 @@ module.exports = {
     try {
       const { page = 1, limit = 10 } = req.query;
 
-      const data = await Guru.find()
+      const data = await Siswa.find()
         .select(
-          "_id nip nama jenisKelamin agama alamat noHp mataPelajaran username role"
+          "_id nisn nama jenisKelamin agama alamat noHp kelas jurusan mataPelajaran username role"
         )
         .limit(limit)
         .skip(limit * (page - 1))
+        .populate({
+          path: "kelas",
+          select: "_id nama",
+          model: "Kelas",
+        })
+        .populate({
+          path: "jurusan",
+          select: "_id nama",
+          model: "Jurusan",
+        })
         .populate({
           path: "mataPelajaran",
           select: "_id kode nama sks kelas jurusan",
@@ -31,11 +41,11 @@ module.exports = {
           ],
         });
 
-      const count = await Guru.countDocuments();
+      const count = await Siswa.countDocuments();
 
       res.status(StatusCodes.OK).json({
         statusCode: StatusCodes.OK,
-        message: "Berhasil mendapatkan data guru",
+        message: "Berhasil mendapatkan data siswa",
         current_page: parseInt(page),
         total_page: Math.ceil(count / limit),
         total_data: count,
@@ -47,12 +57,22 @@ module.exports = {
   },
   getOne: async (req, res, next) => {
     try {
-      const { id: guruId } = req.params;
+      const { id: siswaId } = req.params;
 
-      const data = await Guru.findOne({ _id: guruId })
+      const data = await Siswa.findOne({ _id: siswaId })
         .select(
-          "_id nip nama jenisKelamin agama alamat noHp mataPelajaran username role"
+          "_id nisn nama jenisKelamin agama alamat noHp kelas jurusan mataPelajaran username role"
         )
+        .populate({
+          path: "kelas",
+          select: "_id nama",
+          model: "Kelas",
+        })
+        .populate({
+          path: "jurusan",
+          select: "_id nama",
+          model: "Jurusan",
+        })
         .populate({
           path: "mataPelajaran",
           select: "_id kode nama sks kelas jurusan",
@@ -73,12 +93,12 @@ module.exports = {
 
       if (!data)
         throw new CustomError.NotFound(
-          `Guru dengan id ${guruId} tidak ditemukan`
+          `Siswa dengan id ${siswaId} tidak ditemukan`
         );
 
       res.status(StatusCodes.OK).json({
         statusCode: StatusCodes.OK,
-        message: "Berhasil mendapatkan data guru",
+        message: "Berhasil mendapatkan data siswa",
         data,
       });
     } catch (error) {
@@ -88,12 +108,14 @@ module.exports = {
   create: async (req, res, next) => {
     try {
       const {
-        nip,
+        nisn,
         nama,
         jenisKelamin,
         agama,
         alamat,
         noHp,
+        kelas,
+        jurusan,
         mataPelajaran,
         username,
         password,
@@ -102,22 +124,26 @@ module.exports = {
       if (!password)
         throw new CustomError.BadRequest("Password tidak boleh kosong!");
 
-      const checkNIP = await Guru.findOne({ nip }).select("nip");
-      if (checkNIP)
-        throw new CustomError.BadRequest(`NIP : ${nip} sudah terdaftar`);
-      const checkUsername = await Guru.findOne({ username }).select("username");
+      const checkNISN = await Siswa.findOne({ nisn }).select("nisn");
+      if (checkNISN)
+        throw new CustomError.BadRequest(`NISN : ${nisn} sudah terdaftar`);
+      const checkUsername = await Siswa.findOne({ username }).select(
+        "username"
+      );
       if (checkUsername)
         throw new CustomError.BadRequest(
           `Username : ${username} sudah terdaftar`
         );
 
-      const data = new Guru({
-        nip,
+      const data = new Siswa({
+        nisn,
         nama,
         jenisKelamin,
         agama,
         alamat,
         noHp,
+        kelas,
+        jurusan,
         mataPelajaran: JSON.parse(mataPelajaran),
         username,
         password,
@@ -127,7 +153,7 @@ module.exports = {
 
       res.status(StatusCodes.CREATED).json({
         statusCode: StatusCodes.CREATED,
-        message: "Data guru berhasil ditambahkan",
+        message: "Data siswa berhasil ditambahkan",
         data,
       });
     } catch (error) {
@@ -136,30 +162,32 @@ module.exports = {
   },
   update: async (req, res, next) => {
     try {
-      const { id: guruId } = req.params;
+      const { id: siswaId } = req.params;
       const {
-        nip,
+        nisn,
         nama,
         jenisKelamin,
         agama,
         alamat,
         noHp,
+        kelas,
+        jurusan,
         mataPelajaran,
         username,
       } = req.body;
 
-      const checkNIP = await Guru.findOne({
+      const checkNISN = await Siswa.findOne({
         _id: {
-          $ne: guruId,
+          $ne: siswaId,
         },
-        nip,
-      }).select("nip");
-      if (checkNIP)
-        throw new CustomError.BadRequest(`NIP : ${nip} sudah terdaftar`);
+        nisn,
+      }).select("nisn");
+      if (checkNISN)
+        throw new CustomError.BadRequest(`NISN : ${nisn} sudah terdaftar`);
 
-      const checkUsername = await Guru.findOne({
+      const checkUsername = await Siswa.findOne({
         _id: {
-          $ne: guruId,
+          $ne: siswaId,
         },
         username,
       }).select("username");
@@ -168,26 +196,28 @@ module.exports = {
           `Username : ${username} sudah terdaftar`
         );
 
-      let data = await Guru.findOne({ _id: guruId });
+      let data = await Siswa.findOne({ _id: siswaId });
 
       if (!data)
         throw new CustomError.NotFound(
-          `Guru dengan id ${guruId} tidak ditemukan`
+          `Siswa dengan id ${siswaId} tidak ditemukan`
         );
 
-      data.nip = nip;
+      data.nisn = nisn;
       data.nama = nama;
       data.jenisKelamin = jenisKelamin;
       data.agama = agama;
       data.alamat = alamat;
       data.noHp = noHp;
+      data.kelas = kelas;
+      data.jurusan = jurusan;
       data.mataPelajaran = JSON.parse(mataPelajaran);
       data.username = username;
       await data.save();
 
       res.status(StatusCodes.OK).json({
         statusCode: StatusCodes.OK,
-        message: "Data guru berhasil diubah",
+        message: "Data siswa berhasil diubah",
         data,
       });
     } catch (error) {
@@ -196,20 +226,20 @@ module.exports = {
   },
   destroy: async (req, res, next) => {
     try {
-      const { id: guruId } = req.params;
+      const { id: siswaId } = req.params;
 
-      let data = await Guru.findOne({ _id: guruId });
+      let data = await Siswa.findOne({ _id: siswaId });
 
       if (!data)
         throw new CustomError.NotFound(
-          `Guru dengan id ${guruId} tidak ditemukan`
+          `Siswa dengan id ${siswaId} tidak ditemukan`
         );
 
       await data.remove();
 
       res.status(StatusCodes.OK).json({
         statusCode: StatusCodes.OK,
-        message: "Data guru berhasil dihapus",
+        message: "Data siswa berhasil dihapus",
         data,
       });
     } catch (error) {
