@@ -5,21 +5,11 @@ const CustomError = require("../../../error");
 module.exports = {
   getAll: async (req, res, next) => {
     try {
-      const { page = 1, limit = 10 } = req.query;
-
-      const data = await Kelas.find()
-        .select("_id nama")
-        .limit(limit)
-        .skip(limit * (page - 1));
-
-      const count = await Kelas.countDocuments();
+      const data = await Kelas.find().select("_id nama");
 
       res.status(StatusCodes.OK).json({
         statusCode: StatusCodes.OK,
         message: "Berhasil mendapatkan data kelas",
-        current_page: parseInt(page),
-        total_page: Math.ceil(count / limit),
-        total_data: count,
         data,
       });
     } catch (error) {

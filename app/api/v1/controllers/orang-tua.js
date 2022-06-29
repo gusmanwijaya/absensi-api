@@ -5,12 +5,8 @@ const CustomError = require("../../../error");
 module.exports = {
   getAll: async (req, res, next) => {
     try {
-      const { page = 1, limit = 10 } = req.query;
-
       const data = await OrangTua.find()
         .select("_id nama alamat noHp siswa username role")
-        .limit(limit)
-        .skip(limit * (page - 1))
         .populate({
           path: "siswa",
           select:
@@ -47,14 +43,9 @@ module.exports = {
           ],
         });
 
-      const count = await OrangTua.countDocuments();
-
       res.status(StatusCodes.OK).json({
         statusCode: StatusCodes.OK,
         message: "Berhasil mendapatkan data orang tua",
-        current_page: parseInt(page),
-        total_page: Math.ceil(count / limit),
-        total_data: count,
         data,
       });
     } catch (error) {

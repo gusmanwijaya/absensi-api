@@ -5,14 +5,10 @@ const CustomError = require("../../../error");
 module.exports = {
   getAll: async (req, res, next) => {
     try {
-      const { page = 1, limit = 10 } = req.query;
-
       const data = await Siswa.find()
         .select(
           "_id nisn nama jenisKelamin agama alamat noHp kelas jurusan mataPelajaran username role"
         )
-        .limit(limit)
-        .skip(limit * (page - 1))
         .populate({
           path: "kelas",
           select: "_id nama",
@@ -41,14 +37,9 @@ module.exports = {
           ],
         });
 
-      const count = await Siswa.countDocuments();
-
       res.status(StatusCodes.OK).json({
         statusCode: StatusCodes.OK,
         message: "Berhasil mendapatkan data siswa",
-        current_page: parseInt(page),
-        total_page: Math.ceil(count / limit),
-        total_data: count,
         data,
       });
     } catch (error) {
