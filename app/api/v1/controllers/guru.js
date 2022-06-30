@@ -5,10 +5,14 @@ const CustomError = require("../../../error");
 module.exports = {
   getAll: async (req, res, next) => {
     try {
+      const { page = 1, limit = 10 } = req.query;
+
       const data = await Guru.find()
         .select(
           "_id nip nama jenisKelamin agama alamat noHp mataPelajaran username role"
         )
+        .limit(limit)
+        .skip(limit * (page - 1))
         .populate({
           path: "mataPelajaran",
           select: "_id kode nama sks kelas jurusan",
@@ -27,9 +31,14 @@ module.exports = {
           ],
         });
 
+      const count = await Guru.countDocuments();
+
       res.status(StatusCodes.OK).json({
         statusCode: StatusCodes.OK,
         message: "Berhasil mendapatkan data guru",
+        current_page: parseInt(page),
+        total_page: Math.ceil(count / limit),
+        total_data: count,
         data,
       });
     } catch (error) {
