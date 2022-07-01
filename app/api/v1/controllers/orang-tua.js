@@ -8,7 +8,7 @@ module.exports = {
       const { page = 1, limit = 10 } = req.query;
 
       const data = await OrangTua.find()
-        .select("_id nama alamat noHp siswa username role")
+        .select("_id nama alamat noHp siswa username password role")
         .limit(limit)
         .skip(limit * (page - 1))
         .populate({

@@ -45,6 +45,158 @@ module.exports = {
       next(error);
     }
   },
+  ubahPasswordAdmin: async (req, res, next) => {
+    try {
+      const { id: adminId } = req.params;
+      const { oldPassword, newPassword, confirmNewPassword } = req.body;
+
+      if (!oldPassword || !newPassword || !confirmNewPassword)
+        throw new CustomError.BadRequest("Semua field tidak boleh kosong!");
+
+      let data = await Admin.findOne({ _id: adminId }).select(
+        "_id username password"
+      );
+      if (!data) throw new CustomError.Unauthorized("User tidak ditemukan!");
+
+      const isMatch = await bcrypt.compare(oldPassword, data?.password);
+      if (!isMatch) throw new CustomError.Unauthorized("Password lama salah!");
+
+      if (oldPassword === newPassword)
+        throw new CustomError.BadRequest(
+          "Password baru sama dengan (=) password lama!"
+        );
+
+      if (newPassword !== confirmNewPassword)
+        throw new CustomError.BadRequest(
+          "Password baru tidak sama dengan (!=) konfirmasi password!"
+        );
+
+      data.password = newPassword;
+      await data.save();
+
+      res.status(StatusCodes.OK).json({
+        statusCode: StatusCodes.OK,
+        message: "Ubah password berhasil!",
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  ubahPasswordGuru: async (req, res, next) => {
+    try {
+      const { id: guruId } = req.params;
+      const { oldPassword, newPassword, confirmNewPassword } = req.body;
+
+      if (!oldPassword || !newPassword || !confirmNewPassword)
+        throw new CustomError.BadRequest("Semua field tidak boleh kosong!");
+
+      let data = await Guru.findOne({ _id: guruId }).select(
+        "_id username password"
+      );
+      if (!data) throw new CustomError.Unauthorized("User tidak ditemukan!");
+
+      const isMatch = await bcrypt.compare(oldPassword, data?.password);
+      if (!isMatch) throw new CustomError.Unauthorized("Password lama salah!");
+
+      if (oldPassword === newPassword)
+        throw new CustomError.BadRequest(
+          "Password baru sama dengan (=) password lama!"
+        );
+
+      if (newPassword !== confirmNewPassword)
+        throw new CustomError.BadRequest(
+          "Password baru tidak sama dengan (!=) konfirmasi password!"
+        );
+
+      data.password = newPassword;
+      await data.save();
+
+      res.status(StatusCodes.OK).json({
+        statusCode: StatusCodes.OK,
+        message: "Ubah password berhasil!",
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  ubahPasswordSiswa: async (req, res, next) => {
+    try {
+      const { id: siswaId } = req.params;
+      const { oldPassword, newPassword, confirmNewPassword } = req.body;
+
+      if (!oldPassword || !newPassword || !confirmNewPassword)
+        throw new CustomError.BadRequest("Semua field tidak boleh kosong!");
+
+      let data = await Siswa.findOne({ _id: siswaId }).select(
+        "_id username password"
+      );
+      if (!data) throw new CustomError.Unauthorized("User tidak ditemukan!");
+
+      const isMatch = await bcrypt.compare(oldPassword, data?.password);
+      if (!isMatch) throw new CustomError.Unauthorized("Password lama salah!");
+
+      if (oldPassword === newPassword)
+        throw new CustomError.BadRequest(
+          "Password baru sama dengan (=) password lama!"
+        );
+
+      if (newPassword !== confirmNewPassword)
+        throw new CustomError.BadRequest(
+          "Password baru tidak sama dengan (!=) konfirmasi password!"
+        );
+
+      data.password = newPassword;
+      await data.save();
+
+      res.status(StatusCodes.OK).json({
+        statusCode: StatusCodes.OK,
+        message: "Ubah password berhasil!",
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  ubahPasswordOrangTua: async (req, res, next) => {
+    try {
+      const { id: orangTuaId } = req.params;
+      const { oldPassword, newPassword, confirmNewPassword } = req.body;
+
+      if (!oldPassword || !newPassword || !confirmNewPassword)
+        throw new CustomError.BadRequest("Semua field tidak boleh kosong!");
+
+      let data = await OrangTua.findOne({ _id: orangTuaId }).select(
+        "_id username password"
+      );
+      if (!data) throw new CustomError.Unauthorized("User tidak ditemukan!");
+
+      const isMatch = await bcrypt.compare(oldPassword, data?.password);
+      if (!isMatch) throw new CustomError.Unauthorized("Password lama salah!");
+
+      if (oldPassword === newPassword)
+        throw new CustomError.BadRequest(
+          "Password baru sama dengan (=) password lama!"
+        );
+
+      if (newPassword !== confirmNewPassword)
+        throw new CustomError.BadRequest(
+          "Password baru tidak sama dengan (!=) konfirmasi password!"
+        );
+
+      data.password = newPassword;
+      await data.save();
+
+      res.status(StatusCodes.OK).json({
+        statusCode: StatusCodes.OK,
+        message: "Ubah password berhasil!",
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
   loginAdmin: async (req, res, next) => {
     try {
       const { username, password } = req.body;

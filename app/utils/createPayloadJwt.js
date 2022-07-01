@@ -3,6 +3,7 @@ const createPayloadAdmin = (user) => {
     _id: user._id,
     nama: user.nama,
     username: user.username,
+    password: user.password,
     role: user.role,
   };
 };
@@ -18,6 +19,7 @@ const createPayloadGuru = (user) => {
     noHp: user.noHp,
     mataPelajaran: user.mataPelajaran,
     username: user.username,
+    password: user.password,
     role: user.role,
   };
 };
@@ -35,6 +37,7 @@ const createPayloadSiswa = (user) => {
     jurusan: user.jurusan,
     mataPelajaran: user.mataPelajaran,
     username: user.username,
+    password: user.password,
     role: user.role,
   };
 };
@@ -47,6 +50,7 @@ const createPayloadOrangTua = (user) => {
     noHp: user.noHp,
     siswa: user.siswa,
     username: user.username,
+    password: user.password,
     role: user.role,
   };
 };

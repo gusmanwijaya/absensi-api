@@ -1,4 +1,5 @@
 const Guru = require("../models/guru");
+const MataPelajaran = require("../models/mata-pelajaran");
 const { StatusCodes } = require("http-status-codes");
 const CustomError = require("../../../error");
 
@@ -9,7 +10,7 @@ module.exports = {
 
       const data = await Guru.find()
         .select(
-          "_id nip nama jenisKelamin agama alamat noHp mataPelajaran username role"
+          "_id nip nama jenisKelamin agama alamat noHp mataPelajaran username password role"
         )
         .limit(limit)
         .skip(limit * (page - 1))
@@ -39,6 +40,30 @@ module.exports = {
         current_page: parseInt(page),
         total_page: Math.ceil(count / limit),
         total_data: count,
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  getForSelectMataPelajaran: async (req, res, next) => {
+    try {
+      const data = await MataPelajaran.find()
+        .select("_id kode nama sks kelas jurusan")
+        .populate({
+          path: "kelas",
+          select: "_id nama",
+          model: "Kelas",
+        })
+        .populate({
+          path: "jurusan",
+          select: "_id nama",
+          model: "Jurusan",
+        });
+
+      res.status(StatusCodes.OK).json({
+        statusCode: StatusCodes.OK,
+        message: "Berhasil mendapatkan data mata pelajaran",
         data,
       });
     } catch (error) {

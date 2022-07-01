@@ -7,6 +7,7 @@ const {
   getOne,
   update,
   destroy,
+  getForSelectMataPelajaran,
 } = require("../controllers/guru");
 const {
   authenticationAdmin,
@@ -17,6 +18,7 @@ router.use(authenticationAdmin);
 router.use(authorizeRoles("admin"));
 
 router.get("/get-all", getAll);
+router.get("/get-for-select-mata-pelajaran", getForSelectMataPelajaran);
 router.get("/get-one/:id", getOne);
 router.post("/create", create);
 router.put("/update/:id", update);

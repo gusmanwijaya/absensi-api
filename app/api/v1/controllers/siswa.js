@@ -9,7 +9,7 @@ module.exports = {
 
       const data = await Siswa.find()
         .select(
-          "_id nisn nama jenisKelamin agama alamat noHp kelas jurusan mataPelajaran username role"
+          "_id nisn nama jenisKelamin agama alamat noHp kelas jurusan mataPelajaran username password role"
         )
         .limit(limit)
         .skip(limit * (page - 1))

@@ -21,6 +21,7 @@ const authenticationAdmin = async (req, res, next) => {
       _id: payload._id,
       nama: payload.nama,
       username: payload.username,
+      password: payload.password,
       role: payload.role,
     };
 
@@ -56,6 +57,7 @@ const authenticationGuru = async (req, res, next) => {
       noHp: payload.noHp,
       mataPelajaran: payload.mataPelajaran,
       username: payload.username,
+      password: payload.password,
       role: payload.role,
     };
 
@@ -93,6 +95,7 @@ const authenticationSiswa = async (req, res, next) => {
       jurusan: payload.jurusan,
       mataPelajaran: payload.mataPelajaran,
       username: payload.username,
+      password: payload.password,
       role: payload.role,
     };
 
@@ -125,6 +128,7 @@ const authenticationOrangTua = async (req, res, next) => {
       noHp: payload.noHp,
       siswa: payload.siswa,
       username: payload.username,
+      password: payload.password,
       role: payload.role,
     };
 
