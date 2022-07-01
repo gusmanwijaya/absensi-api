@@ -1,9 +1,82 @@
 const Absensi = require("../models/absensi");
+const MataPelajaran = require("../models/mata-pelajaran");
+const Siswa = require("../models/siswa");
 const { StatusCodes } = require("http-status-codes");
 const CustomError = require("../../../error");
 const moment = require("moment");
 
 module.exports = {
+  getMataPelajaran: async (req, res, next) => {
+    try {
+      const data = await MataPelajaran.find({
+        _id: { $in: req.user.mataPelajaran },
+      })
+        .select("_id kode nama sks kelas jurusan")
+        .populate({
+          path: "kelas",
+          select: "_id nama",
+          model: "Kelas",
+        })
+        .populate({
+          path: "jurusan",
+          select: "_id nama",
+          model: "Jurusan",
+        });
+
+      res.status(StatusCodes.OK).json({
+        statusCode: StatusCodes.OK,
+        message: "Berhasil mendapatkan data mata pelajaran",
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  getSiswa: async (req, res, next) => {
+    try {
+      const { id: mataPelajaranId } = req.params;
+
+      const data = await Siswa.find({ mataPelajaran: mataPelajaranId })
+        .select(
+          "_id nisn nama jenisKelamin agama alamat noHp kelas jurusan mataPelajaran username role"
+        )
+        .populate({
+          path: "kelas",
+          select: "_id nama",
+          model: "Kelas",
+        })
+        .populate({
+          path: "jurusan",
+          select: "_id nama",
+          model: "Jurusan",
+        })
+        .populate({
+          path: "mataPelajaran",
+          select: "_id kode nama sks kelas jurusan",
+          model: "MataPelajaran",
+          populate: [
+            {
+              path: "kelas",
+              select: "_id nama",
+              model: "Kelas",
+            },
+            {
+              path: "jurusan",
+              select: "_id nama",
+              model: "Jurusan",
+            },
+          ],
+        });
+
+      res.status(StatusCodes.OK).json({
+        statusCode: StatusCodes.OK,
+        message: "Berhasil mendapatkan data siswa",
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
   create: async (req, res, next) => {
     try {
       const { tanggal, mataPelajaran, siswa, guru, keterangan } = req.body;
@@ -59,6 +132,85 @@ module.exports = {
       res.status(StatusCodes.CREATED).json({
         statusCode: StatusCodes.CREATED,
         message: "Data absensi berhasil ditambahkan",
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  getAbsensiToday: async (req, res, next) => {
+    try {
+      const { id: idMataPelajaran } = req.params;
+
+      const data = await Absensi.find({
+        mataPelajaran: idMataPelajaran,
+        tanggal: `${moment().get("date")}-${
+          moment().get("month") + 1
+        }-${moment().get("year")}`,
+        guru: req.user._id,
+      });
+
+      res.status(StatusCodes.OK).json({
+        statusCode: StatusCodes.OK,
+        message: "Berhasil mendapatkan data absensi hari ini",
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  getPertemuan: async (req, res, next) => {
+    try {
+      const { id: idMataPelajaran } = req.params;
+
+      const response = await Absensi.find({
+        mataPelajaran: idMataPelajaran,
+        guru: req.user._id,
+      }).select("_id pertemuan");
+
+      let _temp = [];
+      response.forEach((element) => {
+        _temp.push(element?.pertemuan);
+      });
+
+      let data = [...new Set(_temp)];
+
+      res.status(StatusCodes.OK).json({
+        statusCode: StatusCodes.OK,
+        message: "Berhasil mendapatkan data pertemuan",
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  getAllAbsensi: async (req, res, next) => {
+    try {
+      const { id: idMataPelajaran } = req.params;
+      const { query } = req.query;
+
+      const data = await Absensi.find({
+        mataPelajaran: idMataPelajaran,
+        guru: req.user._id,
+        pertemuan: parseInt(query),
+      })
+        .select("_id tanggal pertemuan mataPelajaran siswa guru keterangan")
+        .populate({
+          path: "mataPelajaran",
+          model: "MataPelajaran",
+        })
+        .populate({
+          path: "siswa",
+          model: "Siswa",
+        })
+        .populate({
+          path: "guru",
+          model: "Guru",
+        });
+
+      res.status(StatusCodes.OK).json({
+        statusCode: StatusCodes.OK,
+        message: "Berhasil mendapatkan data absensi",
         data,
       });
     } catch (error) {
