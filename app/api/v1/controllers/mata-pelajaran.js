@@ -1,4 +1,6 @@
 const MataPelajaran = require("../models/mata-pelajaran");
+const Kelas = require("../models/kelas");
+const Jurusan = require("../models/jurusan");
 const { StatusCodes } = require("http-status-codes");
 const CustomError = require("../../../error");
 
@@ -31,6 +33,23 @@ module.exports = {
         total_page: Math.ceil(count / limit),
         total_data: count,
         data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  getForSelect: async (req, res, next) => {
+    try {
+      const kelas = await Kelas.find().select("_id nama");
+      const jurusan = await Jurusan.find().select("_id nama");
+
+      res.status(StatusCodes.OK).json({
+        statusCode: StatusCodes.OK,
+        message: "Berhasil mendapatkan data untuk select",
+        data: {
+          kelas,
+          jurusan,
+        },
       });
     } catch (error) {
       next(error);
