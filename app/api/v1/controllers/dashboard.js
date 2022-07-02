@@ -69,6 +69,16 @@ module.exports = {
         keterangan: "Sakit",
       });
 
+      const history = await Absensi.find({
+        siswa: req.user._id,
+      })
+        .select("_id tanggal pertemuan mataPelajaran siswa guru keterangan")
+        .populate({
+          path: "mataPelajaran",
+          select: "_id kode nama sks kelas jurusan",
+          model: "MataPelajaran",
+        });
+
       res.status(StatusCodes.OK).json({
         statusCode: StatusCodes.OK,
         message: "Berhasil mendapatkan data dashboard!",
@@ -77,6 +87,7 @@ module.exports = {
           hadir,
           izin,
           sakit,
+          history,
         },
       });
     } catch (error) {
@@ -110,6 +121,10 @@ module.exports = {
         },
         keterangan: "Sakit",
       });
+      const absensi = await Absensi.find({ siswa: { $in: req.user.siswa } })
+        .populate("mataPelajaran")
+        .populate("siswa")
+        .populate("guru");
 
       res.status(StatusCodes.OK).json({
         statusCode: StatusCodes.OK,
@@ -120,6 +135,7 @@ module.exports = {
           hadir,
           izin,
           sakit,
+          absensi,
         },
       });
     } catch (error) {

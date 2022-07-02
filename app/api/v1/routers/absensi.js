@@ -6,6 +6,7 @@ const {
   getAbsensiToday,
   getPertemuan,
   getAllAbsensi,
+  qrCode,
 } = require("../controllers/absensi");
 const router = express.Router();
 
@@ -29,14 +30,14 @@ router.get(
 );
 router.get(
   "/get-absensi-today/:id",
-  authenticationGuru,
-  authorizeRoles("guru"),
+  [authenticationGuru, authenticationSiswa],
+  authorizeRoles("guru", "siswa"),
   getAbsensiToday
 );
 router.get(
   "/get-pertemuan/:id",
-  authenticationGuru,
-  authorizeRoles("guru"),
+  [authenticationGuru, authenticationSiswa],
+  authorizeRoles("guru", "siswa"),
   getPertemuan
 );
 router.get(
@@ -51,5 +52,6 @@ router.post(
   authorizeRoles("guru", "siswa"),
   create
 );
+router.get("/qr-code", authenticationSiswa, authorizeRoles("siswa"), qrCode);
 
 module.exports = router;

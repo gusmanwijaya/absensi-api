@@ -1,6 +1,7 @@
 const Absensi = require("../models/absensi");
 const MataPelajaran = require("../models/mata-pelajaran");
 const Siswa = require("../models/siswa");
+const Guru = require("../models/guru");
 const { StatusCodes } = require("http-status-codes");
 const CustomError = require("../../../error");
 const moment = require("moment");
@@ -138,17 +139,84 @@ module.exports = {
       next(error);
     }
   },
+  qrCode: async (req, res, next) => {
+    try {
+      const { tanggal, mataPelajaran, siswa } = req.query;
+
+      if (!tanggal || !mataPelajaran || !siswa)
+        throw new CustomError.BadRequest(
+          "Query tanggal, mata pelajaran, atau siswa tidak boleh kosong!"
+        );
+
+      const tanggalNow = `${moment().get("date")}-${
+        moment().get("month") + 1
+      }-${moment().get("year")}`;
+
+      if (tanggal !== tanggalNow)
+        throw new CustomError.BadRequest("Tanggal absensi bukan hari ini!");
+
+      const absensi = await Absensi.find({ mataPelajaran })
+        .select("pertemuan")
+        .sort({ pertemuan: -1 });
+
+      if (absensi[0]?.pertemuan > 16)
+        throw new CustomError.BadRequest("Pertemuan sudah lebih dari 16!");
+
+      const absensiToday = await Absensi.find({
+        mataPelajaran,
+        siswa,
+        tanggal: tanggalNow,
+      }).populate({
+        path: "mataPelajaran",
+        model: "MataPelajaran",
+      });
+
+      if (absensiToday.length > 0)
+        throw new CustomError.BadRequest(
+          `Anda sudah melakukan absensi untuk mata pelajaran ${absensiToday[0]?.mataPelajaran?.nama} hari ini!`
+        );
+
+      const dataGuru = await Guru.findOne({ mataPelajaran });
+
+      const data = await Absensi.create({
+        tanggal: tanggalNow,
+        mataPelajaran,
+        siswa,
+        guru: dataGuru?._id,
+        keterangan: "Hadir",
+      });
+
+      res.status(StatusCodes.CREATED).json({
+        statusCode: StatusCodes.CREATED,
+        message: "Berhasil melakukan absen hari ini!",
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
   getAbsensiToday: async (req, res, next) => {
     try {
       const { id: idMataPelajaran } = req.params;
 
-      const data = await Absensi.find({
-        mataPelajaran: idMataPelajaran,
-        tanggal: `${moment().get("date")}-${
-          moment().get("month") + 1
-        }-${moment().get("year")}`,
-        guru: req.user._id,
-      });
+      let data;
+      if (req.user.role === "guru") {
+        data = await Absensi.find({
+          mataPelajaran: idMataPelajaran,
+          tanggal: `${moment().get("date")}-${
+            moment().get("month") + 1
+          }-${moment().get("year")}`,
+          guru: req.user._id,
+        });
+      } else if (req.user.role === "siswa") {
+        data = await Absensi.find({
+          mataPelajaran: idMataPelajaran,
+          tanggal: `${moment().get("date")}-${
+            moment().get("month") + 1
+          }-${moment().get("year")}`,
+          siswa: req.user._id,
+        });
+      }
 
       res.status(StatusCodes.OK).json({
         statusCode: StatusCodes.OK,
@@ -163,10 +231,18 @@ module.exports = {
     try {
       const { id: idMataPelajaran } = req.params;
 
-      const response = await Absensi.find({
-        mataPelajaran: idMataPelajaran,
-        guru: req.user._id,
-      }).select("_id pertemuan");
+      let response;
+      if (req.user.role === "guru") {
+        response = await Absensi.find({
+          mataPelajaran: idMataPelajaran,
+          guru: req.user._id,
+        }).select("_id pertemuan");
+      } else if (req.user.role === "siswa") {
+        response = await Absensi.find({
+          mataPelajaran: idMataPelajaran,
+          siswa: req.user._id,
+        }).select("_id pertemuan");
+      }
 
       let _temp = [];
       response.forEach((element) => {
