@@ -98,8 +98,8 @@ module.exports = {
         kode,
         nama,
         sks,
-        kelas,
-        jurusan,
+        kelas: JSON.parse(kelas),
+        jurusan: JSON.parse(jurusan),
       });
       await data.save();
 
@@ -136,8 +136,8 @@ module.exports = {
       data.kode = kode;
       data.nama = nama;
       data.sks = sks;
-      data.kelas = kelas;
-      data.jurusan = jurusan;
+      data.kelas = JSON.parse(kelas);
+      data.jurusan = JSON.parse(jurusan);
       await data.save();
 
       res.status(StatusCodes.OK).json({

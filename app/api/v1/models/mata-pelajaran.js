@@ -14,14 +14,18 @@ const mataPelajaranSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
-    kelas: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Kelas",
-    },
-    jurusan: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Jurusan",
-    },
+    kelas: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Kelas",
+      },
+    ],
+    jurusan: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Jurusan",
+      },
+    ],
   },
   { timestamps: true }
 );
